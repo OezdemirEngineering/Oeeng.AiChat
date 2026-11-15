@@ -41,8 +41,9 @@ public class ChatTests
     public void ResolveModelDirectory_AbsolutePath_ShouldStayUnchanged()
     {
         // Arrange
-        const string basePath = @"D:\Temp\Config";
-        const string configuredPath = @"D:\Data\Models";
+        var root = Path.GetPathRoot(Path.GetTempPath())!;
+        var basePath = Path.Combine(root, "Temp", "Config");
+        var configuredPath = Path.Combine(root, "Data", "Models");
 
         // Act
         var resolvedPath = ModelInstaller.ResolveModelDirectory(configuredPath, basePath);
