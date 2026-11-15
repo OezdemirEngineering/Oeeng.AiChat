@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="LLamaSharp" Version="0.30.0" />
+		<PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.30.0" />
+		<PackageReference Include="Oeeng.Ini.Serializer" Version="1.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="LLModels\Qwen3.5-0.8B-Q4_K_M.gguf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Skills\default.md">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+</Project>

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Oeeng.AiChat.Tests/Oeeng.AiChat.Tests.csproj" />
+  <Project Path="Oeeng.AiChat/Oeeng.AiChat.csproj" />
+</Solution>
