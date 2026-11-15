@@ -1,7 +1,6 @@
-﻿using Ini.Serializer;
-using Ini.Serializer.Converters;
-using Ini.Serializer.Extensions;
-using Ini.Serializer.Services;
+﻿using Oeeng.Ini.Serializer;
+using Oeeng.Ini.Serializer.Converters;
+using Oeeng.Ini.Serializer.Extensions;
 using LLama;
 using LLama.Common;
 using Oeeng.AiChat.Configurations;
@@ -34,6 +33,12 @@ public class Chat : IDisposable
         };
     }
 
+    /// <summary>
+    /// Creates a new chat instance and initializes the model context from configuration.
+    /// </summary>
+    /// <param name="configDirectory">Optional directory containing the configuration file.</param>
+    /// <param name="cancellationToken">A token used to cancel initialization.</param>
+    /// <returns>A fully initialized <see cref="Chat"/> instance.</returns>
     public static async Task<Chat> CreateAsync(
         string? configDirectory = null,
         CancellationToken cancellationToken = default)
@@ -49,7 +54,7 @@ public class Chat : IDisposable
             {
                 var iniFileStr = await File.ReadAllTextAsync(filePath, cancellationToken);
 
-                config = Ini.Serializer.Ini.Deserialize<Configuration>(iniFileStr, serializer =>
+                config = IniFile.Deserialize<Configuration>(iniFileStr, serializer =>
                     serializer.RegisterConverter(new BracketCollectionConverter()));
                 configBasePath = configDirectory;
             }
@@ -58,13 +63,13 @@ public class Chat : IDisposable
         if(File.Exists(Path.Combine(AppContext.BaseDirectory, nameof(Configuration) + ".ini")))
         {
             var iniFileStr = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, nameof(Configuration) + ".ini"), cancellationToken);
-            config = Ini.Serializer.Ini.Deserialize<Configuration>(iniFileStr, serializer =>
+            config = IniFile.Deserialize<Configuration>(iniFileStr, serializer =>
                 serializer.RegisterConverter(new BracketCollectionConverter()));
             configBasePath = AppContext.BaseDirectory;
         }
         else
         {
-            var iniFileStr = Ini.Serializer.Ini.Serialize(config, serializer =>
+            var iniFileStr = IniFile.Serialize(config, serializer =>
                 serializer.RegisterConverter(new BracketCollectionConverter()));
             File.WriteAllText(Path.Combine(AppContext.BaseDirectory, nameof(Configuration) + ".ini"), iniFileStr);
         }
@@ -130,6 +135,12 @@ public class Chat : IDisposable
         }
     }
 
+    /// <summary>
+    /// Streams a model response token-by-token for the provided user question.
+    /// </summary>
+    /// <param name="question">The user prompt to send to the model.</param>
+    /// <param name="cancellationToken">A token used to cancel streaming.</param>
+    /// <returns>An async stream of generated response tokens.</returns>
     public async IAsyncEnumerable<string> StreamAsync(
         string question,
         [EnumeratorCancellation]
@@ -155,6 +166,9 @@ public class Chat : IDisposable
         }
     }
 
+    /// <summary>
+    /// Releases all native resources associated with the chat model context.
+    /// </summary>
     public void Dispose()
     {
         _context.Dispose();

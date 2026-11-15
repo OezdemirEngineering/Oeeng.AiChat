@@ -9,23 +9,38 @@ namespace Oeeng.AiChat.Helper;
 
 internal static class ModelInstaller
 {
-
-    public static async Task<string> EnsureModelAsync(
-        BaseConfiguration baseConfiguration,
-        string? basePath = null,
-        CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Resolves the model directory to an absolute path based on the provided base path.
+    /// </summary>
+    /// <param name="modelDirectory">The configured model directory, absolute or relative.</param>
+    /// <param name="basePath">The base path used for relative directories.</param>
+    /// <returns>An absolute model directory path.</returns>
+    internal static string ResolveModelDirectory(string? modelDirectory, string? basePath)
     {
         string rootPath = string.IsNullOrWhiteSpace(basePath)
             ? AppContext.BaseDirectory
             : basePath;
 
-        string configuredDirectory = baseConfiguration.ModelDirectory;
-
-        string directory = string.IsNullOrWhiteSpace(configuredDirectory)
+        return string.IsNullOrWhiteSpace(modelDirectory)
             ? Path.Combine(rootPath, "LLModels")
-            : Path.IsPathRooted(configuredDirectory)
-                ? configuredDirectory
-                : Path.GetFullPath(Path.Combine(rootPath, configuredDirectory));
+            : Path.IsPathRooted(modelDirectory)
+                ? modelDirectory
+                : Path.GetFullPath(Path.Combine(rootPath, modelDirectory));
+    }
+
+    /// <summary>
+    /// Ensures that the configured model file exists locally and downloads it when missing.
+    /// </summary>
+    /// <param name="baseConfiguration">The model configuration values.</param>
+    /// <param name="basePath">The base path used for resolving relative directories.</param>
+    /// <param name="cancellationToken">A token used to cancel the download operation.</param>
+    /// <returns>The full path to the model file.</returns>
+    public static async Task<string> EnsureModelAsync(
+        BaseConfiguration baseConfiguration,
+        string? basePath = null,
+        CancellationToken cancellationToken = default)
+    {
+        string directory = ResolveModelDirectory(baseConfiguration.ModelDirectory, basePath);
 
         Directory.CreateDirectory(directory);
 
