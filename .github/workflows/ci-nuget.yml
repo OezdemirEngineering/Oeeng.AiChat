@@ -72,15 +72,32 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: NuGet Login
+      # Authenticate using GitHub OIDC
+      - name: Authenticate to NuGet.org
+        id: nuget-login
         uses: NuGet/login@v1
-        id: login
         with:
           user: OEENG
 
-      - name: Publish to NuGet
+
+      # Publish package
+      - name: Publish NuGet package
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
-          dotnet nuget push "artifacts/*.nupkg" \
-            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+          dotnet nuget push "./artifacts/*.nupkg" \
             --source "https://api.nuget.org/v3/index.json" \
+            --api-key "$NUGET_API_KEY" \
             --skip-duplicate
+
+      # Publish symbols if available
+      - name: Publish symbols
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          if compgen -G "./artifacts/*.snupkg" > /dev/null; then
+            dotnet nuget push "./artifacts/*.snupkg" \
+              --source "https://api.nuget.org/v3/index.json" \
+              --api-key "$NUGET_API_KEY" \
+              --skip-duplicate
+          fi
